@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>3D Map with MapLibre</title>
+  <title>Rio Cuarto en 3D con MapLibre</title>
   <link href="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.css" rel="stylesheet" />
   <script src="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.js"></script>
   <style>
@@ -48,17 +48,17 @@
           }
         ]
       },
-      center: [-64.3477571, -33.1229869], // Set your city's coordinates
+      center: [-64.3477571, -33.1229869],
       zoom: 12
     });
 
-    // Add navigation controls (optional)
+    // Add navigation controls
     map.addControl(new maplibregl.NavigationControl());
 
     // Add GeoJSON data for extrusion
     const buildingsSource = {
       'type': 'geojson',
-      'data': 'edificacionesEPSG4326.geojson' // Replace with the path to your GeoJSON file
+      'data': 'edificacionesEPSG4326.geojson'
     };
 
     const buildingsLayer = {
@@ -97,6 +97,8 @@
       }
       isSatellite = !isSatellite; // Toggle state
     });
+
+    
   </script>
 </body>
 </html>
