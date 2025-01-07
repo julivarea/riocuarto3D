@@ -52,7 +52,7 @@ const map = new maplibregl.Map({
   const layers = {
     edificios: { 
       id: "3d-buildings",
-      source: { 'type': 'geojson', 'data': '/layers/edifConParcelasYColoresEPSG4326.geojson' },
+      source: { 'type': 'geojson', 'data': 'capas/edifConParcelasYColoresEPSG4326.geojson' },
       layer: {
         "id": "3d-buildings",
         "type": "fill-extrusion",
@@ -67,7 +67,7 @@ const map = new maplibregl.Map({
     },
     manzanas: {
       id: "manzanas",
-      source: { 'type': 'geojson', 'data': '/layers/manzanasEPSG4326.geojson' },
+      source: { 'type': 'geojson', 'data': 'capas/manzanasEPSG4326.geojson' },
       layer: {
         "id": "manzanas",
         "type": "fill-extrusion",
@@ -82,7 +82,7 @@ const map = new maplibregl.Map({
     },
     calles: {
       id: "calles",
-      source: { 'type': 'geojson', 'data': '/layers/callesEPSG4326.geojson' },
+      source: { 'type': 'geojson', 'data': 'capas/callesEPSG4326.geojson' },
       layer: {
         "id": "calles",
         "type": "fill-extrusion",
@@ -97,7 +97,7 @@ const map = new maplibregl.Map({
     },
     espaciosVerdes: {
       id: "espacios-verdes",
-      source: { 'type': 'geojson', 'data': '/layers/espaciosVerdesEPSG4326.geojson' },
+      source: { 'type': 'geojson', 'data': 'capas/espaciosVerdesEPSG4326.geojson' },
       layer: {
         "id": "espacios-verdes",
         "type": "fill-extrusion",
@@ -112,7 +112,7 @@ const map = new maplibregl.Map({
     },
     rio: {
       id: "rio",
-      source: { 'type': 'geojson', 'data': '/layers/rioEPSG4326.geojson' },
+      source: { 'type': 'geojson', 'data': 'capas/rioEPSG4326.geojson' },
       layer: {
         "id": "rio",
         "type": "fill-extrusion",
