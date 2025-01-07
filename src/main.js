@@ -30,23 +30,25 @@ const map = new maplibregl.Map({
           "id": "basemap-osm",
           "type": "raster",
           "source": "osm",
-          "layout": { "visibility": "none" }
+          "layout": { "visibility": "visible" }
         },
         {
           "id": "basemap-satellite",
           "type": "raster",
           "source": "satellite",
-          "layout": { "visibility": "visible" }
-        }
+          "layout": { "visibility": "none" }
+        },
       ]
     },
-    center: [-64.3477571, -33.1229869],
+    center: [-64.3477571, -33.139869],
     zoom: 12,
+    pitch: 45,
     maxPitch: 85,
+    attributionControl: false
   });
 
   map.addControl(new maplibregl.NavigationControl());
-
+  
   const layers = {
     edificios: { 
       id: "3d-buildings",
@@ -57,7 +59,6 @@ const map = new maplibregl.Map({
         "source": "3d-buildings",
         "paint": {
           "fill-extrusion-color": ["get","color"],
-          //"fill-extrusion-color": "#96939B",
           "fill-extrusion-height": ["get", "alturaMetros"],
           "fill-extrusion-base": 0,
           "fill-extrusion-opacity": 1
@@ -147,13 +148,19 @@ const map = new maplibregl.Map({
   }
 
   map.on('load', () => {
-    // Agregar las capas activadas por defecto
-    Object.keys(layers).forEach(layerName => {
-      // Solo activamos las capas de edificios, manzanas y calles al principio
-      if (layerName !== "espaciosVerdes" && layerName !== "rio") {
-        toggleLayer(layerName, true);
-      }
+      map.setSky(undefined);
+      map.setSky({
+        'sky-color': '#91CEFF', 
+        'sky-horizon-blend': 0.5,
+        'horizon-color': '#FEFEFE',
+        'horizon-fog-blend': 0.6,
+        'fog-color': '#0000FF',
+        'fog-ground-blend': 0,
     });
+    
+    // Agrego las capas activadas por defecto
+    toggleLayer('edificios', true);
+    toggleLayer('manzanas', true);
 
     document.getElementsByName('basemap').forEach((radio) => {
       radio.addEventListener('change', (e) => {
@@ -181,4 +188,6 @@ const map = new maplibregl.Map({
     document.getElementById('toggle-rio').addEventListener('change', (e) => {
       toggleLayer('rio', e.target.checked);
     });
+
+    switchBasemap('osm');
   });
