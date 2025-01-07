@@ -3,48 +3,146 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Rio Cuarto en 3D con MapLibre</title>
+  <title>Rio Cuarto en 3D</title>
+  <link rel="icon" type="image/png" href="favicon.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+ 
   <link href="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.css" rel="stylesheet" />
   <script src="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.js"></script>
-  <style>
-    body, html { margin: 0; padding: 0; }
+ 
+ <style>
+    * {padding: 0; margin: 0; font-family: 'Roboto', serif}
     #map { width: 100%; height: 100vh; }
-    #toggle-btn {
+    #menu {
       position: absolute;
-      top: 20px;
-      left: 20px;
-      background-color: #ffffff;
-      border: 1px solid #000;
+      top: 10px;
+      left: 10px;
+      background: rgba(255, 255, 255, 0.7);
       padding: 10px;
-      cursor: pointer;
-      z-index: 10;
+      border-radius: 5px;
+      z-index: 1;
+      max-width: 200px;
     }
+    ul {
+      list-style-type: none;
+    }
+    li {
+      margin: 5px 0;
+    }
+    input {
+      margin: 5px;
+    }
+    .menu-group {
+      margin-top: 10px;
+    }
+    .menu-group-title {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    footer {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      margin: 10px;
+      background-color: rgba(243, 243, 243, 0.509);
+      padding: 5px;
+    }
+    footer span {
+      margin: 0 10px;
+      padding: 2px;
+    }
+
+    @media only screen and (max-width: 750px) {
+      #menu {
+        font-size: 12px;
+      }
+      footer {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 0px;
+      };
+      footer span {
+        font-size: 12px;
+      };
+    }
+    
   </style>
 </head>
+
 <body>
   <div id="map"></div>
-  <button id="toggle-btn">Switch to Satellite</button>
-  
+
+  <div id="menu">
+    <ul>
+      <li class="menu-group">
+        <div class="menu-group-title">Mapas base:</div>
+        <label><input type="radio" name="basemap" value="osm" />OpenStreetMap</label><br>
+        <label><input type="radio" name="basemap" value="satellite" checked />Satelital</label><br>
+        <label><input type="radio" name="basemap" value="none"/>No Basemap</label>
+      </li>
+      <li class="menu-group">
+        <div class="menu-group-title">Capas:</div>
+        <label><input type="checkbox" id="toggle-edificios" checked />Edificios</label><br>
+        <label><input type="checkbox" id="toggle-manzanas" checked />Manzanas</label><br>
+        <label><input type="checkbox" id="toggle-calles" checked />Calles</label><br>
+        <label><input type="checkbox" id="toggle-espacios-verdes" />Espacios Verdes</label><br>
+        <label><input type="checkbox" id="toggle-rio" />Río</label>
+      </li>
+    </ul>
+  </div>
+
+  <footer>
+    <span><a href="https://maplibre.org/">MapLibre</a></span>
+    <span><a href="https://www.openstreetmap.org/copyright/">OpenStreetMap</a></span>
+    <span><a href="https://mapascordoba.gob.ar/#/descargas/">Mapas Cordoba (IDECOR)</a></span>
+    <span>Imagenes satelitales: Google</span>
+  </footer>
+
   <script>
-    // Initialize the map
     const map = new maplibregl.Map({
-      container: 'map', // HTML container id
+      container: 'map',
       style: {
         "version": 8,
         "sources": {
           "osm": {
             "type": "raster",
-            "tiles": ["https://a.tile.openstreetmap.org/{z}/{x}/{y}.png"],
+            "tiles": [
+              "https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+            ],
+            "tileSize": 256
+          },
+          "satellite": {
+            "type": "raster",
+            "tiles": [
+              "https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}"
+            ],
             "tileSize": 256
           }
         },
         "layers": [
           {
-            "id": "osm-tiles",
+            "id": "background",
+            "type": "background",
+            "paint": {
+              "background-color": "#f0f0f0"
+            }
+          },
+          {
+            "id": "basemap-osm",
             "type": "raster",
             "source": "osm",
-            "minzoom": 0,
-            "maxzoom": 19
+            "layout": { "visibility": "none" }
+          },
+          {
+            "id": "basemap-satellite",
+            "type": "raster",
+            "source": "satellite",
+            "layout": { "visibility": "visible" }
           }
         ]
       },
@@ -52,53 +150,144 @@
       zoom: 12
     });
 
-    // Add navigation controls
     map.addControl(new maplibregl.NavigationControl());
 
-    // Add GeoJSON data for extrusion
-    const buildingsSource = {
-      'type': 'geojson',
-      'data': 'edificacionesEPSG4326.geojson'
-    };
-
-    const buildingsLayer = {
-      "id": "3d-buildings",
-      "type": "fill-extrusion",
-      "source": "buildings",
-      "paint": {
-        "fill-extrusion-color": "#aaa",
-        "fill-extrusion-height": ["get", "alturaMetros"],
-        "fill-extrusion-base": 0,
-        "fill-extrusion-opacity": 1
+    const layers = {
+      edificios: { 
+        id: "3d-buildings",
+        source: { 'type': 'geojson', 'data': 'edifConParcelasYColoresEPSG4326.geojson' },
+        layer: {
+          "id": "3d-buildings",
+          "type": "fill-extrusion",
+          "source": "3d-buildings",
+          "paint": {
+            "fill-extrusion-color": ["get","color"],
+            //"fill-extrusion-color": "#96939B",
+            "fill-extrusion-height": ["get", "alturaMetros"],
+            "fill-extrusion-base": 0,
+            "fill-extrusion-opacity": 1
+          }
+        }
+      },
+      manzanas: {
+        id: "manzanas",
+        source: { 'type': 'geojson', 'data': 'manzanasEPSG4326.geojson' },
+        layer: {
+          "id": "manzanas",
+          "type": "fill-extrusion",
+          "source": "manzanas",
+          "paint": {
+            "fill-extrusion-color": "#ababab",
+            "fill-extrusion-height": 0.75,
+            "fill-extrusion-base": 0,
+            "fill-extrusion-opacity": 0.8
+          }
+        }
+      },
+      calles: {
+        id: "calles",
+        source: { 'type': 'geojson', 'data': 'callesEPSG4326.geojson' },
+        layer: {
+          "id": "calles",
+          "type": "fill-extrusion",
+          "source": "calles",
+          "paint": {
+            "fill-extrusion-color": "#000000",
+            "fill-extrusion-height": 0.1,
+            "fill-extrusion-base": 0,
+            "fill-extrusion-opacity": 0.55
+          }
+        }
+      },
+      espaciosVerdes: {
+        id: "espacios-verdes",
+        source: { 'type': 'geojson', 'data': 'espaciosVerdesEPSG4326.geojson' },
+        layer: {
+          "id": "espacios-verdes",
+          "type": "fill-extrusion",
+          "source": "espacios-verdes",
+          "paint": {
+            "fill-extrusion-color": "#58c468",
+            "fill-extrusion-height": 0.85,
+            "fill-extrusion-base": 0,
+            "fill-extrusion-opacity": 0.85
+          }
+        }
+      },
+      rio: {
+        id: "rio",
+        source: { 'type': 'geojson', 'data': 'rioEPSG4326.geojson' },
+        layer: {
+          "id": "rio",
+          "type": "fill-extrusion",
+          "source": "rio",
+          "paint": {
+            "fill-extrusion-color": "#72bced",
+            "fill-extrusion-height": 0.2,
+            "fill-extrusion-base": 0,
+            "fill-extrusion-opacity": 0.85
+          }
+        }
       }
     };
 
-    // Add the building layer once the map loads
-    map.on('load', () => {
-      map.addSource('buildings', buildingsSource);
-      map.addLayer(buildingsLayer);
-    });
-
-    // Add toggle button functionality
-    const toggleBtn = document.getElementById('toggle-btn');
-    let isSatellite = false; // State variable to track which layer is currently visible
-
-    toggleBtn.addEventListener('click', () => {
-      if (isSatellite) {
-        // Switch to OpenStreetMap
-        map.getSource('osm').tiles = ["https://a.tile.openstreetmap.org/{z}/{x}/{y}.png"];
-        toggleBtn.textContent = 'Switch to Satellite'; // Change button text
+    function toggleLayer(layerName, isVisible) {
+      const layer = layers[layerName];
+      if (isVisible) {
+        if (!map.getLayer(layer.id)) {
+          map.addSource(layer.id, layer.source);
+          map.addLayer(layer.layer);
+        }
       } else {
-        // Switch to Esri Satellite
-        map.getSource('osm').tiles = [
-          "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-        ];
-        toggleBtn.textContent = 'Switch to OSM'; // Change button text
+        if (map.getLayer(layer.id)) {
+          map.removeLayer(layer.id);
+          map.removeSource(layer.id);
+        }
       }
-      isSatellite = !isSatellite; // Toggle state
-    });
+    }
 
-    
+    function switchBasemap(basemap) {
+      map.setLayoutProperty('basemap-osm', 'visibility', basemap === 'osm' ? 'visible' : 'none');
+      map.setLayoutProperty('basemap-satellite', 'visibility', basemap === 'satellite' ? 'visible' : 'none');
+    }
+
+    map.on('load', () => {
+      // Agregar las capas activadas por defecto
+      Object.keys(layers).forEach(layerName => {
+        // Solo activamos las capas de edificios, manzanas y calles al principio
+        if (layerName !== "espaciosVerdes" && layerName !== "rio") {
+          toggleLayer(layerName, true);
+        }
+      });
+
+      document.getElementsByName('basemap').forEach((radio) => {
+        radio.addEventListener('change', (e) => {
+          switchBasemap(e.target.value);
+        });
+      });
+
+      // Event listeners para los checkboxes
+      document.getElementById('toggle-edificios').addEventListener('change', (e) => {
+        toggleLayer('edificios', e.target.checked);
+      });
+
+      document.getElementById('toggle-manzanas').addEventListener('change', (e) => {
+        toggleLayer('manzanas', e.target.checked);
+      });
+
+      document.getElementById('toggle-calles').addEventListener('change', (e) => {
+        toggleLayer('calles', e.target.checked);
+      });
+
+      document.getElementById('toggle-espacios-verdes').addEventListener('change', (e) => {
+        toggleLayer('espaciosVerdes', e.target.checked);
+      });
+
+      document.getElementById('toggle-rio').addEventListener('change', (e) => {
+        toggleLayer('rio', e.target.checked);
+      });
+    });
   </script>
+
 </body>
 </html>
