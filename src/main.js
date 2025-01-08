@@ -52,7 +52,7 @@ const map = new maplibregl.Map({
   const layers = {
     edificios: { 
       id: "3d-buildings",
-      source: { 'type': 'geojson', 'data': 'capas/edifConParcelasYColoresEPSG4326.geojson' },
+      source: { 'type': 'geojson', 'data': 'capas/edifConParcelasYColoresEPSG4326alturaCorregida.geojson' },
       layer: {
         "id": "3d-buildings",
         "type": "fill-extrusion",
