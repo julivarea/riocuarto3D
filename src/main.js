@@ -44,7 +44,8 @@ const map = new maplibregl.Map({
     zoom: 12,
     pitch: 45,
     maxPitch: 85,
-    attributionControl: false
+    attributionControl: false,
+    hash: true
   });
 
   map.addControl(new maplibregl.NavigationControl());
