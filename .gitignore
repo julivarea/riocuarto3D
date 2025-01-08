@@ -1,7 +1,2 @@
-/capasNoUsadas
-/backupCapasUsadas
-manzanasEPSG4326.qmd
-callesEPSG4326.qmd
-espaciosVerdesEPSG4326.qmd
-rioEPSG4326.qmd
-explicacion.docx
+capas/edifConParcelasYColoresEPSG4326CorrecionDeAlturaOld.geojson
+capas/edifConParcelasYColoresEPSG4326Original.geojson
